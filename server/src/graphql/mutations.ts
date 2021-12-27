@@ -1,5 +1,6 @@
 import { GraphQLFieldConfig, GraphQLObjectType, GraphQLString } from 'graphql';
-import { addMessage } from '../data';
+import { addMessage, getMessages } from '../data';
+import { pubsub } from './pubsub';
 
 export const Mutations = new GraphQLObjectType({
   name: 'Mutations',
@@ -15,6 +16,8 @@ const SEND_MESSAGE: GraphQLFieldConfig<any, any, any> = {
   },
   resolve(_: any, { msg }: { msg: string }) {
     addMessage(msg);
+    pubsub.publish('MESSAGES', { messages: getMessages });
+    pubsub.publish('NEW_MESSAGES', { newMessage: msg });
     return msg;
   },
 };
